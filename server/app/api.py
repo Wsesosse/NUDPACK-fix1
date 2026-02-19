@@ -653,6 +653,7 @@ def list_parcels(
     status: Optional[str] = Query(None),
     date: Optional[str] = Query(None),   # "today" | "YYYY-MM-DD" | None
     queue: Optional[str] = Query(None),
+    recipient: Optional[str] = Query(None),
     admin = Depends(require_admin)
 ):
     db = SessionLocal()
@@ -698,6 +699,16 @@ def list_parcels(
         if queue:
             q = q.filter(Parcel.queue_number.ilike(f"%{queue}%"))
 
+        # ================= RECIPIENT FILTER (Name or Unofficial) =================
+        if recipient:
+            like = f"%{recipient}%"
+            q = q.filter(
+                or_(
+                    Parcel.recipient_name.ilike(like),
+                    Parcel.unofficial_recipient.ilike(like),
+                )
+            )
+
         rows = (
             q.order_by(Parcel.created_at.asc())
              .limit(limit)
@@ -712,6 +723,7 @@ def list_parcels(
                 "queue_number": p.queue_number,
                 "status": p.status,
                 "recipient_name": p.recipient_name,
+                "unofficial_recipient": p.unofficial_recipient,
                 "created_at": p.created_at.isoformat() if p.created_at else None,
                 "picked_up_at": p.picked_up_at.isoformat() if p.picked_up_at else None
             })
@@ -1613,8 +1625,8 @@ def cancel_reservation(
         else:
             reservation.current_seq = reservation.start_seq - 1
 
-        # 3️⃣ ลบ reservation
-        db.delete(reservation)
+        # 3️⃣ เปลี่ยนเป็น unactive แทนการลบ (เก็บ history current_seq ไว้)
+        reservation.status = "unactive"
 
         deleted += 1
 
