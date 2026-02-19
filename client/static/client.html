@@ -136,6 +136,20 @@ hover:bg-red-100 active:scale-95 transition">
     <div class="border-t my-5"></div>
 
     <!-- 🔒 กรอกเลขพัสดุ -->
+    <div class="flex flex-col gap-1 mb-2">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" id="unofficialCheck" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+        <span class="text-sm text-gray-700">ผู้รับแทน / ไม่เป็นทางการ</span>
+      </label>
+      
+      <input 
+        id="unofficialName"
+        type="text"
+        class="hidden w-full border rounded-lg h-10 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 mt-1"
+        placeholder="ระบุชื่อผู้รับ (กรณีไม่เป็นทางการ)" 
+      />
+    </div>
+
     <label class="text-sm font-semibold text-orange-400">
       กรอกเลขพัสดุ
     </label>
@@ -336,6 +350,19 @@ hover:bg-red-100 active:scale-95 transition">
             }
         })
 
+        const unofficialCheck = document.getElementById("unofficialCheck")
+        const unofficialName = document.getElementById("unofficialName")
+
+        unofficialCheck.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                unofficialName.classList.remove("hidden")
+                unofficialName.focus()
+            } else {
+                unofficialName.classList.add("hidden")
+                unofficialName.value = ""
+            }
+        })
+
         function beep(ok = true) {
             const c = new AudioContext()
             const o = c.createOscillator()
@@ -412,13 +439,16 @@ async function handleScan(tracking) {
   busy = true
 
   try {
+    const unofficialVal = unofficialCheck.checked ? unofficialName.value.trim() : null
+
     const r = await fetch(`${SERVER}/api/parcels`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         tracking_number: tracking,
         provisional: true,
-        section_id: selectedSections[0]  //  ใช้ตัวแรก
+        section_id: selectedSections[0],  //  ใช้ตัวแรก
+        unofficial_recipient: unofficialVal // 👈 ส่งค่าไป
       })
     })
 

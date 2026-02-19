@@ -278,6 +278,7 @@ def login(
 class ParcelIn(BaseModel):
     tracking_number: str
     recipient_name: Optional[str] = None
+    unofficial_recipient: Optional[str] = None # 👈 เพิ่ม
     admin_staff_name: Optional[str] = None
     provisional: bool = False
     section_id: int
@@ -366,6 +367,7 @@ def create_parcel(p: ParcelIn, request: Request):
             carrier_staff_name=carrier_staff,
             queue_number=queue_number,
             recipient_name=p.recipient_name,
+            unofficial_recipient=p.unofficial_recipient, # 👈 เพิ่ม
             admin_staff_name=p.admin_staff_name,
             status=status,
             section_id=current_reservation.section_id
