@@ -679,12 +679,12 @@ hover:bg-red-100 active:scale-95 transition">
                 // ===== ไม่พบพัสดุ =====
                 if (res.status === 404) {
                   openNotFoundPopup()
-                    ("")
                   scanInputEl.value = ''
                   return
                 }
 
                 const err = await safeJson(res).catch(() => ({ detail: res.statusText }));
+                alert(`เกิดข้อผิดพลาด: ${err.detail || res.statusText}`)
                 setStatus('');
                 scanInputEl.value = '';
                 return;
