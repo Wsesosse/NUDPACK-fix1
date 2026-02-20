@@ -483,8 +483,9 @@ def search_parcels(
         # ---------- date filter ----------
         if date:
             day = datetime.strptime(date, "%Y-%m-%d")
-            start = day
-            end = day + timedelta(days=1)
+            start = day.replace(hour=0, minute=0, second=0, microsecond=0,
+                                tzinfo=timezone(timedelta(hours=7)))
+            end = start + timedelta(days=1)
 
             query = query.filter(
                 and_(
@@ -538,7 +539,8 @@ def recipient_list_parcels(
         # ================= DATE FILTER =================
         if date:
             day = datetime.strptime(date, "%Y-%m-%d")
-            start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+            start = day.replace(hour=0, minute=0, second=0, microsecond=0,
+                                tzinfo=timezone(timedelta(hours=7)))
             end = start + timedelta(days=1)
 
             query = query.filter(
@@ -683,7 +685,8 @@ def list_parcels(
                         pass
 
             if d:
-                start = d.replace(hour=0, minute=0, second=0, microsecond=0)
+                start = d.replace(hour=0, minute=0, second=0, microsecond=0,
+                                  tzinfo=timezone(timedelta(hours=7)))
                 end = start + timedelta(days=1)
 
                 q = q.filter(
@@ -1611,17 +1614,13 @@ def cancel_reservation(
         ).delete(synchronize_session=False)
         db.flush()  # ให้ DB update ก่อนนับใหม่
 
-        
-
-        db.commit()
-
         # 2️⃣ หา queue ล่าสุดที่เหลืออยู่ใน section นี้
         last_parcel = db.query(Parcel).filter(
             Parcel.section_id == sid
         ).order_by(Parcel.queue_number.desc()).first()
 
         if last_parcel:
-            reservation.current_seq = last_parcel.queue_number
+            reservation.current_seq = int(last_parcel.queue_number)
         else:
             reservation.current_seq = reservation.start_seq - 1
 
