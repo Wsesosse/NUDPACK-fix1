@@ -748,15 +748,7 @@ def list_parcels(
 def verify_parcel(tracking: str):
     db = SessionLocal()
     try:
-        # DEBUG: log tracking value received
-        print(f"[VERIFY] tracking received: '{tracking}' (len={len(tracking)})")
-        
-        # DEBUG: show all tracking numbers in DB
-        all_trackings = db.query(Parcel.tracking_number).limit(10).all()
-        print(f"[VERIFY] DB trackings sample: {[t[0] for t in all_trackings]}")
-        
         p = db.query(Parcel).filter(Parcel.tracking_number == tracking).first()
-        print(f"[VERIFY] query result: {p}")
         if not p:
             raise HTTPException(status_code=404, detail="parcel not found")
         return {
