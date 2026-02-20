@@ -210,12 +210,7 @@ hover:bg-red-100 active:scale-95 transition">
 
       </div>
 
-      <!-- show recipient checkbox -->
-      <div class="mt-2 flex items-center gap-2">
-        <input type="checkbox" id="showRecipientCheck" class="accent-orange-500 scale-110"
-          onchange="renderParcelList(lastParcelData)">
-        <label for="showRecipientCheck" class="text-xs text-gray-600 cursor-pointer">แสดงชื่อผู้รับ</label>
-      </div>
+
     </section>
 
 
@@ -1762,7 +1757,6 @@ hover:bg-red-100 active:scale-95 transition">
         function renderParcelList(items) {
 
           const box = document.getElementById("parcelList")
-          const showRecipient = document.getElementById("showRecipientCheck")?.checked
 
           if (!items || !items.length) {
             box.innerHTML = `<div class="text-sm text-gray-400">ไม่พบพัสดุ</div>`
@@ -1770,20 +1764,18 @@ hover:bg-red-100 active:scale-95 transition">
           }
 
           box.innerHTML = items.map(p => {
-            // Build recipient display
+            // Build recipient display (always show)
             let recipientHtml = ''
-            if (showRecipient) {
-              const parts = []
-              if (p.recipient_name) parts.push(escapeHtml(p.recipient_name))
-              if (p.unofficial_recipient) parts.push(`<span class="text-purple-600">(ชื่อหน้ากล่อง: ${escapeHtml(p.unofficial_recipient)})</span>`)
-              if (parts.length) {
-                recipientHtml = `
+            const parts = []
+            if (p.recipient_name) parts.push(escapeHtml(p.recipient_name))
+            if (p.unofficial_recipient) parts.push(`<span class="text-purple-600">(ชื่อหน้ากล่อง: ${escapeHtml(p.unofficial_recipient)})</span>`)
+            if (parts.length) {
+              recipientHtml = `
           <div class="mt-1">
             <span class="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
               ${parts.join(' ')}
             </span>
           </div>`
-              }
             }
 
             return `
